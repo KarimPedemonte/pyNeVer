@@ -13,9 +13,13 @@ from pynever.tensors import Tensor
 
 BENCHMARKS_PATH = '../examples/benchmarks'
 
-logger_stream = logging.getLogger("pynever.strategies.verification")
-logger_stream.addHandler(logging.StreamHandler())
-logger_stream.setLevel(logging.INFO)
+logger_verification = logging.getLogger("pynever.strategies.verification")
+logger_verification.addHandler(logging.StreamHandler())
+logger_verification.setLevel(logging.INFO)
+
+logger_abstraction = logging.getLogger("pynever.strategies.abstraction")
+logger_abstraction.addHandler(logging.StreamHandler())
+logger_abstraction.setLevel(logging.INFO)
 
 logger_file = logging.getLogger("log_file")
 logger_file.addHandler(logging.FileHandler('logs/experiments.csv'))
@@ -95,13 +99,13 @@ def launch_instances(instances_file: str):
                     p_name = instance[1].split("/")[-1]
                     inst_name = f'{instance[0].split("/")[-1]} - {p_name}'
 
-                    logger_stream.info(f'Instance: {inst_name}')
+                    logger_verification.info(f'Instance: {inst_name}')
 
                     start_time = time.perf_counter()
                     result = ver_strategy.verify(net, prop)
                     lap = time.perf_counter() - start_time
 
-                    logger_stream.info(f'{result} - {lap}')
+                    logger_verification.info(f'{result} - {lap:.5f}s\n')
                     logger_file.info(f'{inst_name},{lap},{format_csv(result, net, p_name)}')
 
 
