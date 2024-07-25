@@ -17,14 +17,40 @@ class BackEnd(enum.Enum):
     PYTORCH = 1
 
 
-class Tensor(numpy.ndarray):
+class NpTensor(numpy.ndarray):
+    """Our internal representation of a Tensor. Right now it just a placeholder."""
+    def __new__(cls, t: numpy.ndarray):
+        obj = numpy.asarray(t).view(cls)
+        # If attributes are added they should be added here
+        # The following is an example with an info attribute
+        # obj.info = "value"
+        return obj
+
+    def __array_finalize__(self, obj):
+
+        if obj is None:
+            return
+        # If attributes are added they should be also initialized here
+        # The following is an example with an info attribute
+        # self.info = getattr(obj, 'info', None)
+
+
+class PtTensor(torch.Tensor):
+    def __getitem__(self, item):
+        try:
+            return super().__getitem__(item).item()
+        except RuntimeError:
+            return super().__getitem__(item)
+
+
+class Tensor:
     """Our internal representation of a Tensor. It's a different type of tensor depending on the chosen backend."""
     def __new__(cls, t: numpy.ndarray | torch.Tensor):
         match BACKEND:
             case BACKEND.NUMPY:
-                return numpy.array(t)
+                return NpTensor(t)
             case BACKEND.PYTORCH:
-                return torch.Tensor(t)
+                return PtTensor(t)
             case _:
                 raise NotImplementedError
 
